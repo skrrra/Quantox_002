@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Pecee\\' => array($vendorDir . '/pecee/simple-router/src/Pecee'),
+    'App\\' => array($baseDir . '/src'),
 );
