@@ -5,9 +5,11 @@ require "vendor/autoload.php";
 // @TODO: Refactor namespace / folder structure 
 
 use Pecee\SimpleRouter\SimpleRouter;
-use Classes\InternEndpoint;
+use App\Api\InternEndpoint;
 
 
-SimpleRouter::get('/test', function() {
-    return 'Hello world';
-});
+SimpleRouter::get('/interns', [InternEndpoint::class, 'getAllInterns']);
+
+SimpleRouter::get('/interns/{id}', [InternEndpoint::class, 'getIntern'])->where([ 'id' => '[0-9]+' ]);
+
+SimpleRouter::post('/test', [InternEndpoint::class, 'storeIntern']);
