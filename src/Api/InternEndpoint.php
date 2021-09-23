@@ -2,7 +2,10 @@
 
 namespace App\Api;
 
+// require "vendor/pecee/simple-router/helpers.php";
+
 use App\Database\DatabaseQueries;
+use App\Database\QuerySyntax;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
 use Pecee\SimpleRouter\SimpleRouter;
@@ -15,19 +18,19 @@ class InternEndpoint
 
     public function __construct()
     {
-        $this->query = new DatabaseQueries();
+        $this->query = new QuerySyntax();
     }
 
     public function getAllInterns()
     {
         try{
-            $data = $this->query->processQuery('SELECT * FROM intern');
+            $data = $this->query->getInternList();
         } catch (PDOException $e){
             return $e->getCode();
         }
 
         if(empty($data)){
-            return JsonResponse::requestFail(false, [], HttpResponse::HTTP_NOT_FOUND);
+            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
@@ -36,37 +39,75 @@ class InternEndpoint
     public function getIntern($id)
     {
         if(!is_numeric($id)){
-            return JsonResponse::requestFail(false, [], HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
         try{
-            $data = $this->query->processQuery('SELECT * FROM intern WHERE id = ' .$id);
+            $data = $this->query->getIntern($id);
         }catch(PDOException $e){
-            return $e->getCode();
+            throw $e->getCode();
         }
 
         if(empty($data)){
-            return JsonResponse::requestFail(false, [], HttpResponse::HTTP_NOT_FOUND);
+            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
     }
 
-    public function storeIntern()
+    public function createIntern()
     {
-    //     if(!is_numeric($id)){
-    //         return JsonResponse::requestFail(false, [], HttpResponse::HTTP_BAD_REQUEST);
-    //     }
-        
-        $params = SimpleRouter::request()->getInputHandler()->all();
+        $data = SimpleRouter::request()->getInputHandler()->all();
 
-        $query = "INSERT INTO `intern` (`mentor_id`, `group_id`, `full_name`, `city`) VALUES ('0', '0', " ."'".$params['name']."'". ", "."'".$params['city']."'".");";
-        
-        $data = $this->query->processQuery($query);
+        if(!isset($data['full_name'], $data['city'], $data['mentor_id'], $data['group_id'])){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+    
+        try{
+            $data = $this->query->createIntern($data['mentor_id'], $data['group_id'], $data['full_name'], $data['city']);
+            if(!$data){
+                return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            }
+        }catch(\Exception $e){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
 
-        // $data = ['name' => $params['name'],
-        //          'city' => $params['city']];
-        
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+    }
+
+    public function updateIntern($id)
+    {
+        if(!is_numeric($id)){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        $data = SimpleRouter::request()->getInputHandler()->all();
+
+        $params = $this->query->updateIntern($id, $data);
+            
+        if($params){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        return JsonResponse::requestSuccess(true, [], HttpResponse::HTTP_OK);
+    }
+
+    public function deleteIntern($id)
+    {
+        if(!is_numeric($id)){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        try{
+            $data = $this->query->deleteIntern($id);
+        }catch(\Exception $e){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+        
+        if($data){
+            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+        }
+
+        return JsonResponse::requestSuccess(true, '{}', HttpResponse::HTTP_OK);
     }
 }
