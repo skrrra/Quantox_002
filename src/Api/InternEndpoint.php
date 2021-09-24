@@ -103,8 +103,8 @@ class InternEndpoint
         }catch(\Exception $e){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
-        
-        if($data){
+
+        if(!$data){
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
