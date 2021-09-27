@@ -2,29 +2,25 @@
 
 namespace App\Api;
 
-// require "vendor/pecee/simple-router/helpers.php";
-
 use App\Database\DatabaseQueries;
-use App\Database\QuerySyntax;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
 use Pecee\SimpleRouter\SimpleRouter;
 
-
-class InternEndpoint
+class MentorEndpoint
 {
 
     private $query;
 
     public function __construct()
     {
-        $this->query = new QuerySyntax();
+        $this->query = new DatabaseQueries();
     }
 
-    public function getAllInterns()
+    public function getMentorList()
     {
         try{
-            $data = $this->query->getInternList();
+            $data = $this->query->getMentorList();
         } catch (PDOException $e){
             return $e->getCode();
         }
@@ -36,14 +32,14 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
     }
 
-    public function getIntern($id)
+    public function getMentor($id)
     {
         if(!is_numeric($id)){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
         try{
-            $data = $this->query->getIntern($id);
+            $data = $this->query->getMentor($id);
         }catch(PDOException $e){
             throw $e->getCode();
         }
@@ -55,16 +51,16 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
     }
 
-    public function createIntern()
+    public function createMentor()
     {
         $data = SimpleRouter::request()->getInputHandler()->all();
 
-        if(!isset($data['full_name'], $data['city'], $data['mentor_id'], $data['group_id'])){
+        if(!isset($data['full_name'], $data['group_id'])){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
     
         try{
-            $data = $this->query->createIntern($data['mentor_id'], $data['group_id'], $data['full_name'], $data['city']);
+            $data = $this->query->createMentor($data['full_name'], $data['group_id']);
             if(!$data){
                 return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
             }
@@ -75,7 +71,7 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
     }
 
-    public function updateIntern($id)
+    public function updateMentor($id)
     {
         if(!is_numeric($id)){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
@@ -83,29 +79,25 @@ class InternEndpoint
 
         $data = SimpleRouter::request()->getInputHandler()->all();
 
-        $params = $this->query->updateIntern($id, $data);
-            
-        if($params){
+        try{
+            $query = $this->query->updateMentor($data, $id);
+        }catch(\Exception $e){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, [], HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, ['updated values' => $data], HttpResponse::HTTP_OK);
     }
 
-    public function deleteIntern($id)
+    public function deleteMentor($id)
     {
         if(!is_numeric($id)){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
         try{
-            $data = $this->query->deleteIntern($id);
+            $query = $this->query->deleteMentor($id);
         }catch(\Exception $e){
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        if(!$data){
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
         return JsonResponse::requestSuccess(true, '{}', HttpResponse::HTTP_OK);
