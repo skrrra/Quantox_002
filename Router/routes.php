@@ -6,18 +6,39 @@ require "vendor/autoload.php";
 use Pecee\SimpleRouter\SimpleRouter as Router;
 use App\Http\JsonResponse;
 use App\Api\InternEndpoint;
+use App\Api\MentorEndpoint;
+
+//
+//Interns Api endpoint routes
+//
+Router::group(['namespace' => 'InternEndpoint'], function () {
+    Router::get('/interns', [InternEndpoint::class, 'getAllInterns']);
+
+    Router::get('/intern/{id}', [InternEndpoint::class, 'getIntern']);
+
+    Router::post('/intern/create', [InternEndpoint::class, 'createIntern']);
+
+    Router::patch('/intern/update/{id}', [InternEndpoint::class, 'updateIntern']);
+
+    Router::delete('/intern/delete/{id}', [InternEndpoint::class, 'deleteIntern']);
+});
+
+Router::group(['namespace' => 'MentorEndpoint'], function() {
+    Router::get('/mentors', [MentorEndpoint::class, 'getMentorList']);
+
+    Router::get('/mentor/{id}', [MentorEndpoint::class, 'getMentor']);
+
+    Router::post('/mentor/create', [MentorEndpoint::class, 'createMentor']);
+
+    Router::patch('/mentor/update/{id}', [MentorEndpoint::class, 'updateMentor']);
+
+    Router::delete('/mentor/delete/{id}', [MentorEndpoint::class, 'deleteMentor']);
+});
 
 
-
-Router::get('/interns', [InternEndpoint::class, 'getAllInterns']);
-
-Router::get('/intern/{id}', [InternEndpoint::class, 'getIntern']);
-
-Router::post('/intern/create', [InternEndpoint::class, 'createIntern']);
-
-Router::patch('/intern/update/{id}', [InternEndpoint::class, 'updateIntern']);
-
-Router::delete('/intern/delete/{id}', [InternEndpoint::class, 'deleteIntern']);
+//
+// Route error handling
+//
 
 // Route not found 
 Router::get('/not-found', [JsonResponse::class, 'routeNotFound']);
@@ -26,7 +47,6 @@ Router::get('/not-found', [JsonResponse::class, 'routeNotFound']);
 Router::get('/method-not-allowed', [JsonResponse::class, 'routeBadRequest']);
 
 Router::error(function(\Pecee\Http\Request $request, \Exception $exception) {
-    var_dump($exception);
     if($exception->getCode() === 404) {
         response()->redirect('/not-found');
     }
