@@ -7,6 +7,7 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
 use App\Http\JsonResponse;
 use App\Api\InternEndpoint;
 use App\Api\MentorEndpoint;
+use App\Api\GroupEndpoint;
 
 //
 //Interns Api endpoint routes
@@ -33,6 +34,18 @@ Router::group(['namespace' => 'MentorEndpoint'], function() {
     Router::patch('/mentor/update/{id}', [MentorEndpoint::class, 'updateMentor']);
 
     Router::delete('/mentor/delete/{id}', [MentorEndpoint::class, 'deleteMentor']);
+});
+
+Router::group(['namespace' => 'GroupEndpoint'], function(){
+    Router::get('/groups', [GroupEndpoint::class, 'getGroupList']);
+
+    Router::get('/group/{id}', [GroupEndpoint::class, 'getGroup']);
+
+    Router::post('/group/create', [GroupEndpoint::class, 'createGroup']);
+
+    Router::patch('/group/update/{id}', [GroupEndpoint::class, 'updateGroup']);
+
+    Router::delete('/group/delete/{id}', [GroupEndpoint::class, 'deleteGroup']);
 });
 
 

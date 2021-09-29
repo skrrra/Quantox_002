@@ -29,17 +29,14 @@ class HttpMethods
     {
         $place_holders = implode(',', array_fill(0, count($params), '?'));
 
-        $data = $this->database->connect()->prepare("INSERT INTO ".$query." VALUES (".$place_holders.")");
+        $data = $this->database->connect()->prepare("INSERT INTO ".$query." VALUES ( ".$place_holders." )");
         $data->execute($params);
-        // $data->execute($params);
 
         return $data;
     }
 
     public function patch($params, $id, $table)
     {
-        $place_holders = implode(',', array_fill(0, count($params), '?'));
-
         foreach($params as $key => $param){
             $values[] = $key . '=:' . $key;
         }
@@ -53,10 +50,11 @@ class HttpMethods
     {
         $data = $this->database->connect()->prepare("DELETE FROM `".$table."` WHERE id = ?");
         $data->execute([$id]);
-        
+
         if($data->rowCount() < 1){
             return false;
         }
+        return true;
     }
 
 }
