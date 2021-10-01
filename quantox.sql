@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 21, 2021 at 11:07 AM
+-- Generation Time: Oct 01, 2021 at 04:17 PM
 -- Server version: 5.7.24
 -- PHP Version: 7.2.19
 
@@ -20,18 +20,26 @@ SET time_zone = "+00:00";
 --
 -- Database: `quantox`
 --
-CREATE DATABASE IF NOT EXISTS `quantox` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `quantox`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `intern`
+-- Table structure for table `groups`
 --
 
-CREATE TABLE `intern` (
+CREATE TABLE `groups` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interns`
+--
+
+CREATE TABLE `interns` (
   `id` int(10) UNSIGNED NOT NULL,
-  `mentor_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
   `full_name` varchar(80) NOT NULL,
   `city` varchar(30) NOT NULL
@@ -40,14 +48,27 @@ CREATE TABLE `intern` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mentor`
+-- Table structure for table `interns_comments`
 --
 
-CREATE TABLE `mentor` (
+CREATE TABLE `interns_comments` (
+  `id` int(11) NOT NULL,
+  `intern_id` int(11) NOT NULL,
+  `mentor_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentors`
+--
+
+CREATE TABLE `mentors` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
-  `intern_id` int(11) NOT NULL,
-  `name` varchar(80) NOT NULL
+  `full_name` varchar(80) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -55,15 +76,27 @@ CREATE TABLE `mentor` (
 --
 
 --
--- Indexes for table `intern`
+-- Indexes for table `groups`
 --
-ALTER TABLE `intern`
+ALTER TABLE `groups`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `mentor`
+-- Indexes for table `interns`
 --
-ALTER TABLE `mentor`
+ALTER TABLE `interns`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `interns_comments`
+--
+ALTER TABLE `interns_comments`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `mentors`
+--
+ALTER TABLE `mentors`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -71,16 +104,28 @@ ALTER TABLE `mentor`
 --
 
 --
--- AUTO_INCREMENT for table `intern`
+-- AUTO_INCREMENT for table `groups`
 --
-ALTER TABLE `intern`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `groups`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 
 --
--- AUTO_INCREMENT for table `mentor`
+-- AUTO_INCREMENT for table `interns`
 --
-ALTER TABLE `mentor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `interns`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+--
+-- AUTO_INCREMENT for table `interns_comments`
+--
+ALTER TABLE `interns_comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+--
+-- AUTO_INCREMENT for table `mentors`
+--
+ALTER TABLE `mentors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
