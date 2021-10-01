@@ -7,7 +7,6 @@ use PDO;
 
 class HttpMethods
 {
-
     private $database;
 
     public function __construct()
@@ -19,7 +18,7 @@ class HttpMethods
     {
         $data = $this->database->connect()->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
-        if(empty($data)){
+        if (empty($data)) {
             return false;
         }
         return $data;
@@ -31,13 +30,13 @@ class HttpMethods
 
         $data = $this->database->connect()->prepare("INSERT INTO ".$query." VALUES ( ".$place_holders." )");
         $data->execute($params);
-
+    
         return $data;
     }
 
     public function patch($params, $id, $table)
     {
-        foreach($params as $key => $param){
+        foreach ($params as $key => $param) {
             $values[] = $key . '=:' . $key;
         }
         $values = implode(',', $values);
@@ -51,10 +50,9 @@ class HttpMethods
         $data = $this->database->connect()->prepare("DELETE FROM `".$table."` WHERE id = ?");
         $data->execute([$id]);
 
-        if($data->rowCount() < 1){
+        if ($data->rowCount() < 1) {
             return false;
         }
         return true;
     }
-
 }
