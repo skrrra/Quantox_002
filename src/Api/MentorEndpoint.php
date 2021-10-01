@@ -77,7 +77,11 @@ class MentorEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $data = SimpleRouter::request()->getInputHandler()->all();
+        $data = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+
+        if(empty($data)){
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
 
         try{
             $query = $this->query->updateMentor($data, $id);
@@ -85,7 +89,7 @@ class MentorEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, ['updated values' => $data], HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
     }
 
     public function deleteMentor($id)
