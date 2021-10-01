@@ -20,7 +20,7 @@ Requires no parameters, returns list of interns in database.
 Parameter  | Type    | Description
 -----------|---------|------------
 id         | integer | Intern ID
-mentor_id  | integer | ID of mentor that intern belongs to
+mentor_id  | integer | ID of mentor that intern belongs to / could be multiple mentors
 group_id   | integer | ID of group that intern belongs to
 full_name  | string  | Full name of intern
 city       | string  | Name of the city intern is from
@@ -41,47 +41,41 @@ id         | integer | Intern ID
 
 ### Create intern
 
-#### URL
-``` POST http://localhost/intern/create ```
-
 #### Required query parameters
 
 Parameter  | Type    | Description
 -----------|---------|------------
-mentor_id  | integer | ID of mentor this intern is associated with
 group_id   | integer | ID of a group this intern belongs to
 full_name  | string  | Full name of intern
 city       | string  | Name of a city this intern is from
+
+#### URL
+``` POST http://localhost/intern/create ```
 
 #### Return values
 
 Parameter  | Type    | Description
 -----------|---------|------------
-mentor_id  | integer | ID of mentor that intern belongs to
 group_id   | integer | ID of group that intern belongs to
 full_name  | string  | Full name of intern
 city       | string  | Name of the city intern is from
 
 ### Update existing intern
 
-#### URL
-``` PATCH http://localhost/intern/update/{id} ```
-
 #### Required *ONE* parameter, rest is optional
 
 Parameter  | Type    | Description
 -----------|---------|------------
-mentor_id  | integer | ID of mentor this intern is associated with
 group_id   | integer | ID of a group this intern belongs to
 full_name  | string  | Full name of intern
 city       | string  | Name of a city this intern is from
 
+#### URL
+``` PATCH http://localhost/intern/update/{id} ```
+
 #### Return updated values
 
 ### Delete existing intern
-
-#### URL
-``` DELETE http://localhost/intern/delete/{id} ```
 
 #### Required query parameters
 
@@ -89,10 +83,80 @@ Parameter  | Type    | Description
 -----------|---------|------------
 id         | integer | ID of intern in database
 
+#### URL
+``` DELETE http://localhost/intern/delete/{id} ```
+
+#### Return no values
+
+## __Intern comments Endpoint__
+
+### List comments for one intern
+
+#### Required query parameters
+
+Parameter  | Type    | Description
+-----------|---------|------------
+id         | integer | Intern ID
+
+#### URL
+``` GET http://localhost/interns-comments/{id} ```
+
+#### Return values
+
+Parameter  | Type    | Description
+-----------|---------|------------
+intern_name| string  | Name of intern who comment is about
+mentor_name| string  | Full name of the mentor who wrote comment
+mentor_id  | integer | ID of mentor
+comment_id | integer | ID of comment
+comment    | string  | Content of comment
+
+### Create a comment about intern
+
+#### Required parameters
+
+Parameter  | Type    | Description
+-----------|---------|------------
+intern_id  | integer | Intern ID who is comment about
+mentor_id  | integer | Mentor ID who is writting the comment
+comment    | text    | Comment content
+
+#### URL
+``` POST http://localhost/interns-comments/create ```
+
+#### Return values
+
+Parameter  | Type    | Description
+-----------|---------|------------
+intern_id  | integer | Intern ID
+mentor_id  | integer | Mentor ID
+comment    | string  | Content of comment
+
+### Update existing comment
+
+#### Required *ONE* parameter, rest is optional (Comment ID must be provided in URL)
+
+Parameter  | Type    | Description
+-----------|---------|------------
+intern_id  | integer | Intern ID who is comment about
+mentor_id  | integer | Mentor ID who is writting the comment
+comment    | text    | Comment content
+
+#### URL
+``` PATCH http://localhost/interns-comments/update/{id} ```
+
+#### Return updated values
+
+### Delete existing comment
+
+#### Requires ID of comment in url
+
+#### URL
+``` DELETE http://localhost/interns-comments/delete/{id} ```
+
 #### Return no values
 
 ## __Mentors Endpoint__
-
 
 ### List all mentors
 Requires no parameters, returns list of mentors in database.
@@ -124,15 +188,15 @@ id         | integer | Mentor ID
 
 ### Create mentor
 
-#### URL
-``` POST http://localhost/mentor/create ```
-
 #### Required query parameters
 
 Parameter  | Type    | Description
 -----------|---------|------------
 group_id   | integer | ID of a group this mentor belongs to
 full_name  | string  | Full name of mentor
+
+#### URL
+``` POST http://localhost/mentor/create ```
 
 #### Return values
 
@@ -143,9 +207,6 @@ name       | string  | Name of created mentor
 
 ### Update existing mentor
 
-#### URL
-``` PATCH http://localhost/mentor/update/{id} ```
-
 #### Required *ONE* parameter, rest is optional
 
 Parameter  | Type    | Description
@@ -153,18 +214,21 @@ Parameter  | Type    | Description
 group_id   | integer | ID of a group this mentor belongs to
 full_name  | string  | Full name of mentor
 
+#### URL
+``` PATCH http://localhost/mentor/update/{id} ```
+
 #### Return updated values
 
 ### Delete existing intern
-
-#### URL
-``` DELETE http://localhost/mentor/delete/{id} ```
 
 #### Required query parameters
 
 Parameter  | Type    | Description
 -----------|---------|------------
-id         | integer | ID of mentor in database
+id         | integer | ID of mentor in databaseg
+
+#### URL
+``` DELETE http://localhost/mentor/delete/{id} ```
 
 #### Return no values
 
@@ -174,6 +238,13 @@ id         | integer | ID of mentor in database
 
 ### List all groups
 Requires no parameters, returns list of groups in database.
+
+#### Pagination (optional) parameters
+
+Parameter  | Type    | Description
+-----------|---------|------------
+per_page   | integer | Number of records you want to fetch from database
+page       | integer | Pagination page you want to view
 
 #### URL
 ``` GET http://localhost/groups ```
@@ -241,21 +312,18 @@ group_name | string  | Name of created group
 
 ### Update existing group
 
-#### URL
-``` PATCH http://localhost/group/update/{id} ```
-
 #### Required *ONE* parameter group name
 
 Parameter  | Type    | Description
 -----------|---------|------------
 group_name | string  | Name of created group
 
+#### URL
+``` PATCH http://localhost/group/update/{id} ```
+
 #### Return updated values
 
 ### Delete existing group
-
-#### URL
-``` DELETE http://localhost/group/delete/{id} ```
 
 #### Required query parameters
 
@@ -263,5 +331,38 @@ Parameter  | Type    | Description
 -----------|---------|------------
 id         | integer | ID of the group in database
 
+#### URL
+``` DELETE http://localhost/group/delete/{id} ```
+
 #### Return no values
 
+# Assignment 
+
+``` User storry:
+Quantox organizuje praksu pa im je potreban neki sistem za pracenje grupa, mentora i praktikanata. 
+Zadatak:
+Napraviti API endpointe za mentore, praktikante i grupe.
+- Svaki endpoint mora da ima CRUD operacije. 
+- Svaki endpoint vraca iskljucivo JSON response, koji dalje mozemo da koristimo u nekom FE frameworku ili nekoj slicnoj app
+- Group endpoint treba da ima i listing pored gore navedenog CRUD-a, koji ce ispisati mentore i praktikante. Endpoint mora da 
+    podrzava sortiranje, kao i da podrzava paginaciju.
+- Mentor pripada jednoj grupi. U read endpointu prikazati i kojoj grupi pirpada.
+- Praktikant pripada jednoj grupi. U read endpointu napisati kojoj grupi pripada.
+- Grupa ima jednog ili vise mentora, i vise praktikanata. U read endpointu napisati ko su mentori i praktikanti koji joj pripadaju.
+Requirements:
+- Obavezan OOP pristup - namespaces, nasledjivanje, interfejs(i)/abstrakcija
+- Za rad na zadatku mozete koristiti composer, pakete i njegov autoloader da loadujete vase klase
+- Kod zadatka hostovati na github-u, i koristite glit flow prilikom izrade samog zadatka. Ne brisati branch-eve koje merdzujete 
+    jer je bitno da se vidi proces izrade zadatka
+- U zadatku je potrebno da napravite zaseban fajl koji sadrzi SQL upit/strukturu za kreiranje vase baze u testnom okruzenju, 
+    kao i php skriptu koja ce da popuni tu bazu sa podacima. Za PHP skriptu mozete koristiti Faker biblioteku za generisanje fake 
+    imena, prezimena, malova, idr.
+- U zadaktu je obavezno da se pisu raw SQL upiti bez obzira da li planirate da koristite neki ORM ili ne
+Bonus points:
+- Koriscenje adekvatnih HTTP request metoda
+- Koriscenje odgovarajucih HTTP response status kodova
+- Koriscenje routing biblioteke ili pisanje svoje router biblioteke 
+- Adekvatno handlovanje errora i exceptiona u kodu i prikaz istih u responsu sa odgovarajucim HTTP status kodom
+Bonus zadatak:
+- Dodati endpoint da mentor moze da upise komentar za praktikanta. Prilikom ispisa informacija za praktikanta, ispisati i komentare 
+    koje je mentor uneo koji su sortirani hronoloski. Samo mentori njegove grupe u kojoj se praktikant nalazi mogu da upisuju komentare ```

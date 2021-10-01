@@ -8,6 +8,7 @@ use App\Http\JsonResponse;
 use App\Api\InternEndpoint;
 use App\Api\MentorEndpoint;
 use App\Api\GroupEndpoint;
+use App\Api\InternCommentEndpoint;
 
 //
 //Interns Api endpoint routes
@@ -24,6 +25,9 @@ Router::group(['namespace' => 'InternEndpoint'], function () {
     Router::delete('/intern/delete/{id}', [InternEndpoint::class, 'deleteIntern']);
 });
 
+//
+// Mentors Api endpoint routes
+//
 Router::group(['namespace' => 'MentorEndpoint'], function() {
     Router::get('/mentors', [MentorEndpoint::class, 'getMentorList']);
 
@@ -36,6 +40,9 @@ Router::group(['namespace' => 'MentorEndpoint'], function() {
     Router::delete('/mentor/delete/{id}', [MentorEndpoint::class, 'deleteMentor']);
 });
 
+//
+// Groups Api endpoint routes
+//
 Router::group(['namespace' => 'GroupEndpoint'], function(){
     Router::get('/groups', [GroupEndpoint::class, 'getGroupList']);
 
@@ -49,6 +56,16 @@ Router::group(['namespace' => 'GroupEndpoint'], function(){
 });
 
 
+Router::group(['namespace' => 'InternComments'], function(){
+    Router::get('/intern-comment/{id}', [InternCommentEndpoint::class, 'getInternComments']);
+
+    Router::post('/intern-comment/create', [InternCommentEndpoint::class, 'createInternComment']);
+
+    Router::patch('/intern-comment/update/{id}', [InternCommentEndpoint::class, 'updateInternComment']);
+
+    Router::delete('/intern-comment/delete/{id}', [InternCommentEndpoint::class, 'deleteInternComment']);
+});
+
 //
 // Route error handling
 //
@@ -59,6 +76,7 @@ Router::get('/not-found', [JsonResponse::class, 'routeNotFound']);
 // Method not allowed
 Router::get('/method-not-allowed', [JsonResponse::class, 'routeBadRequest']);
 
+// Redirect setup based on http response
 Router::error(function(\Pecee\Http\Request $request, \Exception $exception) {
     if($exception->getCode() === 404) {
         response()->redirect('/not-found');

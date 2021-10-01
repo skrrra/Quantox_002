@@ -31,7 +31,8 @@ class JsonResponse
         header('Content-Type: application/json; charset=utf-8');
     }
 
-    public static function routeNotFound(){
+    public static function routeNotFound()
+    {
         static::setHeaderAndResponseCode(404);
         return static::requestFail(HttpResponse::HTTP_NOT_FOUND);
     }
@@ -41,6 +42,5 @@ class JsonResponse
         static::setHeaderAndResponseCode(400);
         return static::requestFail(HttpResponse::HTTP_BAD_REQUEST);
     }
-
 
 }
