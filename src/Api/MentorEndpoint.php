@@ -5,6 +5,7 @@ namespace App\Api;
 use App\Database\DatabaseQueries;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
+use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class MentorEndpoint
@@ -19,89 +20,69 @@ class MentorEndpoint
 
     public function getMentorList()
     {
-        try{
-            $data = $this->query->getMentorList();
-        } catch (PDOException $e){
-            return $e->getCode();
-        }
+        $queryData = $this->query->getMentorList();
 
-        if(empty($data)){
+        if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function getMentor($id)
     {
-        if(!is_numeric($id)){
+        if (!is_numeric($id)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try{
-            $data = $this->query->getMentor($id);
-        }catch(PDOException $e){
-            throw $e->getCode();
-        }
+        $queryData = $this->query->getMentor($id);
 
-        if(empty($data)){
+        if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function createMentor()
     {
-        $data = SimpleRouter::request()->getInputHandler()->all();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
-        if(!isset($data['full_name'], $data['group_id'])){
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-    
-        try{
-            $data = $this->query->createMentor($data['full_name'], $data['group_id']);
-            if(!$data){
-                return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-            }
-        }catch(\Exception $e){
+        if (!isset($queryParams['full_name'], $queryParams['group_id']) || !is_numeric($queryParams['group_id'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        $queryData = $this->query->createMentor($queryParams['full_name'], $queryParams['group_id']);
+        if ($queryData == false) {
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function updateMentor($id)
     {
-        if(!is_numeric($id)){
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+
+        if (!is_numeric($id) || empty($queryParams)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $data = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+        $this->query->updateMentor($queryParams, $id);
 
-        if(empty($data)){
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        try{
-            $query = $this->query->updateMentor($data, $id);
-        }catch(\Exception $e){
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryParams, HttpResponse::HTTP_OK);
     }
 
     public function deleteMentor($id)
     {
-        if(!is_numeric($id)){
+        if (!is_numeric($id)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try{
-            $query = $this->query->deleteMentor($id);
-        }catch(\Exception $e){
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        $queryData = $this->query->deleteMentor($id);
+
+        if ($queryData == false) {
+            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
         return JsonResponse::requestSuccess(true, '{}', HttpResponse::HTTP_OK);

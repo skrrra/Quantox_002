@@ -25,17 +25,18 @@ class DatabaseQueries
         return $this->httpMethods->get('SELECT i.id, i.full_name, i.city, i.group_id, g.name AS group_name 
                                         FROM interns AS i 
                                         INNER JOIN groups AS g ON i.group_id = g.id 
-                                        WHERE i.id = '.$id);
+                                        WHERE i.id = ' . $id);
     }
 
     public function createIntern($data)
     {
-        $queryParams = [ $data['group_id'], $data['full_name'], $data['city']];
+        $queryParams = [$data['group_id'], $data['full_name'], $data['city']];
+
         $this->httpMethods->post("`interns` (`group_id`, `full_name`, `city`)", $queryParams);
 
-        return ['groupId'  => $data['group_id'], 
-                'name'     => $data['full_name'], 
-                'city'     => $data['city']];
+        return ['groupId' => $data['group_id'],
+                'name'    => $data['full_name'],
+                'city'    => $data['city']];
     }
 
     public function updateIntern($id, $queryParams)
@@ -64,16 +65,12 @@ class DatabaseQueries
         return $this->httpMethods->get("SELECT m.id mentor_id, m.full_name mentor_name, m.group_id, g.name group_name 
                                         FROM mentors m 
                                         INNER JOIN groups g ON m.group_id = g.id 
-                                        WHERE m.id = ".$id);
+                                        WHERE m.id = " . $id);
     }
 
     public function createMentor($fullName, $groupId)
     {
-        if (!is_numeric($groupId)) {
-            return false;
-        }
-
-        $queryParams = [(int) $groupId, $fullName];
+        $queryParams = [(int)$groupId, $fullName];
 
         $queryData = $this->httpMethods->post("`mentors` (`group_id`, `full_name`)", $queryParams);
 
@@ -104,26 +101,26 @@ class DatabaseQueries
         // parameters are set if so set variables $rowCount and $page, if not set them as null
         if (isset($queryParams['per_page']) && isset($queryParams['page'])) {
             $rowCount = $queryParams['per_page'];
-            $page = ($queryParams['page'] - 1) * $rowCount;
+            $page     = ($queryParams['page'] - 1) * $rowCount;
         } else {
             $rowCount = null;
-            $page = null;
+            $page     = null;
         }
 
         if ($rowCount != null) {
             $groups = $this->httpMethods->get("SELECT id AS group_id, name AS group_name 
                                                FROM groups 
-                                               LIMIT ".$rowCount." OFFSET ".$page);
+                                               LIMIT " . $rowCount . " OFFSET " . $page);
         } else {
             $groups = $this->httpMethods->get("SELECT id AS group_id, name AS group_name 
                                                FROM groups");
         }
-        
+
         // getting all group ids and converting them into string for sql query
         $groupIds = array_map(function ($group) {
             return $group['group_id'];
         }, $groups);
-        
+
         $groupIds = implode(',', $groupIds);
 
         $mentors = $this->httpMethods->get("SELECT id AS mentor_id, group_id, full_name AS mentor_name 
@@ -133,7 +130,7 @@ class DatabaseQueries
         $interns = $this->httpMethods->get("SELECT id AS intern_id, group_id, full_name AS intern_name, city AS intern_city 
                                             FROM interns 
                                             WHERE group_id in (" . $groupIds . ")");
-       
+
         $array = [];
 
         // formating json response
@@ -167,8 +164,8 @@ class DatabaseQueries
                                          FROM groups AS g 
                                          INNER JOIN mentors AS m ON m.group_id = g.id 
                                          INNER JOIN interns AS i ON i.group_id = g.id 
-                                         WHERE g.id = ".$id);
-    
+                                         WHERE g.id = " . $id);
+
         foreach ($data as $key => $value) {
             $groupId[]    = $value['group_id'];
             $groupName[]  = $value['group_name'];
@@ -178,16 +175,16 @@ class DatabaseQueries
             $internName[] = $value['intern_name'];
         }
 
-        $array = ['group' => ['group_id' => implode(array_unique($groupId)),
-        'group_name' => implode(array_unique($groupName))]];
+        $array = ['group' => ['group_id'   => implode(array_unique($groupId)),
+                              'group_name' => implode(array_unique($groupName))]];
 
         foreach (array_unique($mentorId) as $key => $id) {
-            $array['mentor'][] = array( 'mentor_id'   => $mentorId[$key], 
-                                        'mentor_name' => $mentorName[$key]);
+            $array['mentor'][] = ['mentor_id'   => $mentorId[$key],
+                                  'mentor_name' => $mentorName[$key]];
         }
         foreach (array_unique($internId) as $key => $id) {
-            $array['intern'][] = array( 'intern_id'   => $internId[$key], 
-                                        'intern_name' => $internName[$key]);
+            $array['intern'][] = ['intern_id'   => $internId[$key],
+                                  'intern_name' => $internName[$key]];
         }
 
         return $array;
@@ -196,7 +193,7 @@ class DatabaseQueries
     public function createGroup($groupName)
     {
         $queryParams = [$groupName];
-        $queryData = $this->httpMethods->post("`groups` ( `name` )", $queryParams);
+        $queryData   = $this->httpMethods->post("`groups` ( `name` )", $queryParams);
 
         if (!$queryData) {
             return false;
@@ -237,13 +234,13 @@ class DatabaseQueries
 
         //Comparing if Mentor (who is making comment) is in the group with Intern (who Mentor is writting comment to)
         //If yes then query will be executed, if not return false which means "Http Code: 403, Forbidden"
-        if($mentorGroup[0]['group_id'] === $internGroup[0]['group_id']){
+        if ($mentorGroup[0]['group_id'] === $internGroup[0]['group_id']) {
             $queryParams = [$queryParams['intern_id'], $queryParams['mentor_id'], $queryParams['comment']];
-            $queryData = $this->httpMethods->post("`interns_comments` ( `intern_id`, `mentor_id`, `comment` )", $queryParams);
-        }else{
+            $this->httpMethods->post("`interns_comments` ( `intern_id`, `mentor_id`, `comment` )", $queryParams);
+        } else {
             return false;
         }
-        return ['intern_id' => $queryParams[0], 'mentor_id' => $queryParams[1], 'comment' => $queryParams[2]];
+        return $queryParams;
     }
 
     public function updateInternComment($queryParams, $id)

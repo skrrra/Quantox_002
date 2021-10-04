@@ -5,6 +5,7 @@ namespace App\Api;
 use App\Database\DatabaseQueries;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
+use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class GroupEndpoint
@@ -18,20 +19,17 @@ class GroupEndpoint
 
     public function getGroupList()
     {
-        $params = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
-        if (isset($params['per_page']) && !isset($params['page'])) {
-            $params['page'] = 1;
+        if (isset($queryParams['per_page']) && !isset($queryParams['page'])) {
+            $queryParams['page'] = 1;
         }
 
-        try {
-            if (!isset($params['per_page'])) {
-                $params = [];
-            }
-            $queryData = $this->query->getGroupList($params);
-        } catch (PDOException $e) {
-            return $e->getCode();
+        if (!isset($queryParams['per_page'])) {
+            $queryParams = [];
         }
+
+        $queryData = $this->query->getGroupList($queryParams);
 
         if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
@@ -45,11 +43,7 @@ class GroupEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $queryData = $this->query->getGroup($id);
-        } catch (PDOException $e) {
-            throw $e->getCode();
-        }
+        $queryData = $this->query->getGroup($id);
 
         if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
@@ -60,18 +54,14 @@ class GroupEndpoint
 
     public function createGroup()
     {
-        $params = SimpleRouter::request()->getInputHandler()->getOriginalPost();
-        
-        if (!isset($params['name'])) {
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
+
+        if (!isset($queryParams['name'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
-    
-        try {
-            $queryData = $this->query->createGroup($params['name']);
-            if (!$queryData) {
-                return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-            }
-        } catch (\Exception $e) {
+
+        $queryData = $this->query->createGroup($queryParams['name']);
+        if (!$queryData) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -80,19 +70,19 @@ class GroupEndpoint
 
     public function updateGroup($id)
     {
-        $params = SimpleRouter::request()->getInputHandler()->getOriginalPost();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
-        if (!is_numeric($id) || !isset($params['name'])) {
+        if (!is_numeric($id) || !isset($queryParams['name'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryData = $this->query->updateGroup($id, $params);
+        $queryData = $this->query->updateGroup($id, $queryParams);
 
-        if ($queryData) {
+        if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, ['updated_values' => $params], HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, ['updated_values' => $queryParams], HttpResponse::HTTP_OK);
     }
 
     public function deleteGroup($id)
@@ -101,11 +91,7 @@ class GroupEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $queryData = $this->query->deleteGroup($id);
-        } catch (\Exception $e) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
+        $queryData = $this->query->deleteGroup($id);
 
         if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);

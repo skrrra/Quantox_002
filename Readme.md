@@ -1,3 +1,13 @@
+# Project setup:
+
+``` 
+    1. Clone repository localy
+    2. Use composer to install all dependencies
+    3. Setup database ( database dump file: quantox.sql *in root directory*)
+    4. Seed database ( -> php DatabaseSeeder.php *file is located in root directory*)
+    5. Read API documentation below
+````
+
 # Quantox API Documentation
 
 ## Response codes
