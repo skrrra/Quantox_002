@@ -2,21 +2,6 @@
 
 require "vendor/autoload.php";
 
-<<<<<<< HEAD
-use Pecee\SimpleRouter\SimpleRouter as Router;
-use App\Http\JsonResponse;
-use App\Api\InternEndpoint;
-use App\Api\MentorEndpoint;
-use App\Api\GroupEndpoint;
-use App\Api\InternCommentEndpoint;
-=======
-// @TODO: Refactor namespace / folder structure 
->>>>>>> d773fec76918690e0cff259b9acefb4f756de420
-
-use Pecee\SimpleRouter\SimpleRouter;
-use Classes\InternEndpoint;
-
-<<<<<<< HEAD
     Router::get('/intern/{id}', [InternEndpoint::class, 'getIntern']);
 
     Router::post('/intern/create', [InternEndpoint::class, 'createIntern']);
@@ -86,8 +71,6 @@ Router::error(function(\Pecee\Http\Request $request, \Exception $exception) {
         response()->redirect('/method-not-allowed');
     }
 });
-=======
->>>>>>> d773fec76918690e0cff259b9acefb4f756de420
 
 SimpleRouter::get('/test', function() {
     return 'Hello world';
