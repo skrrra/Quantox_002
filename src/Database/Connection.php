@@ -7,7 +7,6 @@ use PDO;
 class Connection
 {
     private $config;
-    private $status_code;
 
     public function __construct()
     {

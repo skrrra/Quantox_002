@@ -55,7 +55,9 @@ Router::group(['namespace' => 'GroupEndpoint'], function(){
     Router::delete('/group/delete/{id}', [GroupEndpoint::class, 'deleteGroup']);
 });
 
-
+//
+// Intern Comments Api endpoint routes
+//
 Router::group(['namespace' => 'InternComments'], function(){
     Router::get('/intern-comment/{id}', [InternCommentEndpoint::class, 'getInternComments']);
 
@@ -70,7 +72,7 @@ Router::group(['namespace' => 'InternComments'], function(){
 // Route error handling
 //
 
-// Route not found 
+// Route not found
 Router::get('/not-found', [JsonResponse::class, 'routeNotFound']);
 
 // Method not allowed
@@ -85,4 +87,3 @@ Router::error(function(\Pecee\Http\Request $request, \Exception $exception) {
         response()->redirect('/method-not-allowed');
     }
 });
-

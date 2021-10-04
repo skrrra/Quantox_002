@@ -78,7 +78,7 @@ class GroupEndpoint
 
         $queryData = $this->query->updateGroup($id, $queryParams);
 
-        if ($queryData == false) {
+        if ($queryData) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 

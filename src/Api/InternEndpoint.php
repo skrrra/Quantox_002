@@ -3,10 +3,8 @@
 namespace App\Api;
 
 use App\Database\DatabaseQueries;
-use App\Exceptions\InvalidNumberOfParametersException;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
-use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class InternEndpoint
@@ -64,17 +62,17 @@ class InternEndpoint
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
-        if (!is_numeric($id) || !is_numeric($queryParams['group_id']) || empty($queryParams)) {
+        if (!is_numeric($id) || empty($queryParams)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
         $queryData = $this->query->updateIntern($id, $queryParams);
 
-        if ($queryData == false) {
+        if ($queryData) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, [], HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryParams, HttpResponse::HTTP_OK);
     }
 
     public function deleteIntern($id)

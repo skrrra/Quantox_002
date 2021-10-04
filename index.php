@@ -3,8 +3,6 @@
 require_once 'Router/routes.php';
 
 use Pecee\SimpleRouter\SimpleRouter;
-use App\Database\DatabaseQueries;
-use App\Api\InternEndpoint;
 
 /* Load external routes file */
 /**
@@ -16,4 +14,3 @@ SimpleRouter::setDefaultNamespace('App\Api');
 
 // Start the routing
 SimpleRouter::start();
-

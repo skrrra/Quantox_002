@@ -5,7 +5,6 @@ namespace App\Api;
 use App\Database\DatabaseQueries;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
-use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class MentorEndpoint

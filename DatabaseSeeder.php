@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\HttpMethods;
-
 require_once 'vendor/autoload.php';
+
+use App\Http\HttpMethods;
 
 $httpMethod = new HttpMethods();
 
