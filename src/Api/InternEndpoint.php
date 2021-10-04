@@ -1,12 +1,11 @@
+<<<<<<< HEAD
 <?php
 
 namespace App\Api;
 
 use App\Database\DatabaseQueries;
-use App\Exceptions\InvalidNumberOfParametersException;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
-use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class InternEndpoint
