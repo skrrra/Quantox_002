@@ -3,14 +3,14 @@
 namespace App\Api;
 
 use App\Database\DatabaseQueries;
-use App\Exceptions\InvalidNumberOfParametersException;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
 use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
-class InternEndpoint
+class MentorEndpoint
 {
+
     private $query;
 
     public function __construct()
@@ -18,9 +18,9 @@ class InternEndpoint
         $this->query = new DatabaseQueries();
     }
 
-    public function getAllInterns()
+    public function getMentorList()
     {
-        $queryData = $this->query->getAllInterns();
+        $queryData = $this->query->getMentorList();
 
         if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
@@ -29,13 +29,13 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
-    public function getIntern($id)
+    public function getMentor($id)
     {
         if (!is_numeric($id)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryData = $this->query->getIntern($id);
+        $queryData = $this->query->getMentor($id);
 
         if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
@@ -44,15 +44,15 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
-    public function createIntern()
+    public function createMentor()
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
-        if (!isset($queryParams['full_name'], $queryParams['city'], $queryParams['group_id']) || !is_numeric($queryParams['group_id'])) {
+        if (!isset($queryParams['full_name'], $queryParams['group_id']) || !is_numeric($queryParams['group_id'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryData = $this->query->createIntern($queryParams);
+        $queryData = $this->query->createMentor($queryParams['full_name'], $queryParams['group_id']);
         if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
@@ -60,30 +60,26 @@ class InternEndpoint
         return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
-    public function updateIntern($id)
+    public function updateMentor($id)
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
-        if (!is_numeric($id) || !is_numeric($queryParams['group_id']) || empty($queryParams)) {
+        if (!is_numeric($id) || empty($queryParams)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryData = $this->query->updateIntern($id, $queryParams);
+        $this->query->updateMentor($queryParams, $id);
 
-        if ($queryData == false) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        return JsonResponse::requestSuccess(true, [], HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryParams, HttpResponse::HTTP_OK);
     }
 
-    public function deleteIntern($id)
+    public function deleteMentor($id)
     {
         if (!is_numeric($id)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $queryData = $this->query->deleteIntern($id);
+        $queryData = $this->query->deleteMentor($id);
 
         if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
