@@ -2,11 +2,9 @@
 
 namespace App\Http;
 
-use App\Http\HttpResponse;
-
 class JsonResponse
-{   
-    
+{
+
     public static function requestFail($http_code)
     {
         static::setHeaderAndResponseCode($http_code);

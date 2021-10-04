@@ -1,6 +1,20 @@
 <?php
 
+require "vendor/pecee/simple-router/helpers.php";
 require "vendor/autoload.php";
+
+use Pecee\SimpleRouter\SimpleRouter as Router;
+use App\Http\JsonResponse;
+use App\Api\InternEndpoint;
+use App\Api\MentorEndpoint;
+use App\Api\GroupEndpoint;
+use App\Api\InternCommentEndpoint;
+
+//
+//Interns Api endpoint routes
+//
+Router::group(['namespace' => 'InternEndpoint'], function () {
+    Router::get('/interns', [InternEndpoint::class, 'getAllInterns']);
 
     Router::get('/intern/{id}', [InternEndpoint::class, 'getIntern']);
 
@@ -41,7 +55,9 @@ Router::group(['namespace' => 'GroupEndpoint'], function(){
     Router::delete('/group/delete/{id}', [GroupEndpoint::class, 'deleteGroup']);
 });
 
-
+//
+// Intern Comments Api endpoint routes
+//
 Router::group(['namespace' => 'InternComments'], function(){
     Router::get('/intern-comment/{id}', [InternCommentEndpoint::class, 'getInternComments']);
 
@@ -56,7 +72,7 @@ Router::group(['namespace' => 'InternComments'], function(){
 // Route error handling
 //
 
-// Route not found 
+// Route not found
 Router::get('/not-found', [JsonResponse::class, 'routeNotFound']);
 
 // Method not allowed
@@ -70,8 +86,4 @@ Router::error(function(\Pecee\Http\Request $request, \Exception $exception) {
     if($exception->getCode() === 403) {
         response()->redirect('/method-not-allowed');
     }
-});
-
-SimpleRouter::get('/test', function() {
-    return 'Hello world';
 });
