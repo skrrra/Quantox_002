@@ -3,8 +3,10 @@
 namespace App\Api;
 
 use App\Database\DatabaseQueries;
+use App\Exceptions\InvalidNumberOfParametersException;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
+use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class InternEndpoint
@@ -18,17 +20,13 @@ class InternEndpoint
 
     public function getAllInterns()
     {
-        try {
-            $data = $this->query->getAllInterns();
-        } catch (PDOException $e) {
-            return $e->getCode();
-        }
+        $queryData = $this->query->getAllInterns();
 
-        if (empty($data)) {
+        if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function getIntern($id)
@@ -37,50 +35,42 @@ class InternEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $data = $this->query->getIntern($id);
-        } catch (PDOException $e) {
-            throw $e->getCode();
-        }
+        $queryData = $this->query->getIntern($id);
 
-        if (empty($data)) {
+        if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function createIntern()
     {
-        $params = SimpleRouter::request()->getInputHandler()->all();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
-        if (!isset($params['full_name'], $params['city'], $params['group_id'])) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-    
-        try {
-            $data = $this->query->createIntern($params);
-            if (!$data) {
-                return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-            }
-        } catch (\Exception $e) {
+        if (!isset($queryParams['full_name'], $queryParams['city'], $queryParams['group_id']) || !is_numeric($queryParams['group_id'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        return JsonResponse::requestSuccess(true, $data, HttpResponse::HTTP_OK);
+        $queryData = $this->query->createIntern($queryParams);
+        if ($queryData == false) {
+            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function updateIntern($id)
     {
-        if (!is_numeric($id)) {
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+
+        if (!is_numeric($id) || !is_numeric($queryParams['group_id']) || empty($queryParams)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        $data = SimpleRouter::request()->getInputHandler()->all();
+        $queryData = $this->query->updateIntern($id, $queryParams);
 
-        $params = $this->query->updateIntern($id, $data);
-            
-        if ($params) {
+        if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -93,13 +83,9 @@ class InternEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $data = $this->query->deleteIntern($id);
-        } catch (\Exception $e) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
+        $queryData = $this->query->deleteIntern($id);
 
-        if ($data == false) {
+        if ($queryData == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
 

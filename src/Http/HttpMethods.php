@@ -17,7 +17,7 @@ class HttpMethods
     public function get($query)
     {
         $data = $this->database->connect()->query($query)->fetchAll(PDO::FETCH_ASSOC);
-
+        
         if (empty($data)) {
             return false;
         }

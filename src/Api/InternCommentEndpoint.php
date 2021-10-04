@@ -5,6 +5,7 @@ namespace App\Api;
 use App\Database\DatabaseQueries;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
+use Exception;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class InternCommentEndpoint
@@ -18,54 +19,43 @@ class InternCommentEndpoint
 
     public function getInternComments($id)
     {
-        try {
-            $queryData = $this->query->getInternComments($id);
-        } catch (PDOException $e) {
-            return $e->getCode();
-        }
+        $queryData = $this->query->getInternComments($id);
 
         if (empty($queryData)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
         }
+
         return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
     }
 
     public function createInternComment()
     {
-        $params = SimpleRouter::request()->getInputHandler()->getOriginalPost();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
-        if(!isset($params['intern_id'], $params['mentor_id'], $params['comment'])){
+        if (!isset($queryParams['intern_id'], $queryParams['mentor_id'], $queryParams['comment'])) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $queryResponse = $this->query->createInternComment($params);
-        } catch (PDOException $e) {
-            return $e->getCode();
+        $queryResponse = $this->query->createInternComment($queryParams);
+
+        if ($queryResponse == false) {
+            return JsonResponse::requestFail(HttpResponse::HTTP_FORBIDDEN);
         }
 
-        if($queryResponse == false){
-            return JsonResponse::requestFail(HttpResponse::HTTP_FORBIDDEN);
-        }else{
-            return JsonResponse::requestSuccess(true, $queryResponse, HttpResponse::HTTP_OK);
-        }
+        return JsonResponse::requestSuccess(true, $queryResponse, HttpResponse::HTTP_OK);
     }
 
     public function updateInternComment($id)
     {
-        $queryParams = SimpleRouter::request()->getInputHandler()->all();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
-        if (!is_numeric($id)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
-
-        if (empty($queryParams)){
+        if (!is_numeric($id) || empty($queryParams)) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
         $queryResponse = $this->query->updateInternComment($queryParams, $id);
-            
-        if ($queryResponse) {
+
+        if ($queryResponse == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
@@ -78,11 +68,7 @@ class InternCommentEndpoint
             return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $queryResponse = $this->query->deleteInternComment($id);
-        } catch (\Exception $e) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
-        }
+        $queryResponse = $this->query->deleteInternComment($id);
 
         if ($queryResponse == false) {
             return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
