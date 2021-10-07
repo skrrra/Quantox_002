@@ -3,9 +3,10 @@
 ``` 
     1. Clone repository localy
     2. Use composer to install all dependencies
-    3. Setup database ( database dump file: quantox.sql *in root directory*)
-    4. Seed database ( -> php DatabaseSeeder.php *file is located in root directory*)
-    5. Read API documentation below
+    4. Change config.ini file with your database details (file is located in root directory)
+    5. Migrate and seed database by executing DatabaseMigration.php file (file located in root directory)
+            - Prompt will ask you if you want migration+seed (y-yes/n-no), if no script will only migrate database.
+    6. Read API documentation below
 ````
 
 # Quantox API Documentation
@@ -16,6 +17,9 @@ HTTP Code | Meaning
 200       | Endpoint returned successfully
 400       | Missing query parameters
 404       | Query did not found anything / bad route
+
+## Warning
+### ```*POST and PATCH requests expect parameters in JSON format*```
 
 ## __Interns Endpoint__
 
