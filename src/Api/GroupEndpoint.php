@@ -2,22 +2,28 @@
 
 namespace App\Api;
 
-use App\Database\DatabaseQueries;
+use App\Models\GroupsModel;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
-use Exception;
+use App\Interfaces\CrudInterface;
 use Pecee\SimpleRouter\SimpleRouter;
 
-class GroupEndpoint
+class GroupEndpoint implements CrudInterface
 {
     private $query;
 
+    /**
+     * GroupEndpoint constructor
+     */
     public function __construct()
     {
-        $this->query = new DatabaseQueries();
+        $this->query = new GroupsModel();
     }
 
-    public function getGroupList()
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function listing() : string
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
 
@@ -32,71 +38,83 @@ class GroupEndpoint
         $queryData = $this->query->getGroupList($queryParams);
 
         if (empty($queryData)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_NOT_FOUND, false);
         }
-        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryData);
     }
 
-    public function getGroup($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function get(int $id) : string
     {
         if (!is_numeric($id)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryData = $this->query->getGroup($id);
 
         if (empty($queryData)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_NOT_FOUND, false);
         }
 
-        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryData);
     }
 
-    public function createGroup()
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function create(): string
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
         if (!isset($queryParams['name'])) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryData = $this->query->createGroup($queryParams['name']);
         if (!$queryData) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
-        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryData);
     }
 
-    public function updateGroup($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function update(int $id) : string
     {
-        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
         if (!is_numeric($id) || !isset($queryParams['name'])) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryData = $this->query->updateGroup($id, $queryParams);
 
         if ($queryData) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
-        return JsonResponse::requestSuccess(true, ['updated_values' => $queryParams], HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, ['updated_values' => $queryParams]);
     }
 
-    public function deleteGroup($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function delete(int $id) : string
     {
         if (!is_numeric($id)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryData = $this->query->deleteGroup($id);
 
-        if ($queryData == false) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+        if (empty($queryData)) {
+            return JsonResponse::requestResponse(HttpResponse::HTTP_NOT_FOUND, false);
         }
 
-        return JsonResponse::requestSuccess(true, '{}', HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true);
     }
 }

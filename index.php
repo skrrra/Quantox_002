@@ -1,6 +1,7 @@
 <?php
 
-require_once 'Router/routes.php';
+require_once 'vendor/autoload.php';
+require_once 'src/Router/routes.php';
 
 use Pecee\SimpleRouter\SimpleRouter;
 
