@@ -2,77 +2,93 @@
 
 namespace App\Api;
 
-use App\Database\DatabaseQueries;
+use App\Models\InternsCommentsModel;
 use App\Http\JsonResponse;
 use App\Http\HttpResponse;
+use App\Interfaces\CrudInterface;
 use Pecee\SimpleRouter\SimpleRouter;
 
-class InternCommentEndpoint
+class InternCommentEndpoint implements CrudInterface
 {
     private $query;
 
+    /**
+     * InternCommentEndpoint constructor
+     */
     public function __construct()
     {
-        $this->query = new DatabaseQueries();
+        $this->query = new InternsCommentsModel();
     }
 
-    public function getInternComments($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function get($id) : string
     {
         $queryData = $this->query->getInternComments($id);
 
         if (empty($queryData)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_NOT_FOUND, false);
         }
 
-        return JsonResponse::requestSuccess(true, $queryData, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryData);
     }
 
-    public function createInternComment()
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function create() : string
     {
         $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
         if (!isset($queryParams['intern_id'], $queryParams['mentor_id'], $queryParams['comment'])) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryResponse = $this->query->createInternComment($queryParams);
 
         if ($queryResponse == false) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_FORBIDDEN);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_FORBIDDEN, false);
         }
 
-        return JsonResponse::requestSuccess(true, $queryResponse, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryResponse);
     }
 
-    public function updateInternComment($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function update($id) : string
     {
-        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalParams();
+        $queryParams = SimpleRouter::request()->getInputHandler()->getOriginalPost();
 
         if (!is_numeric($id) || empty($queryParams)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
         $queryResponse = $this->query->updateInternComment($queryParams, $id);
 
-        if ($queryResponse == false) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+        if (empty($queryResponse)) {
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
-        return JsonResponse::requestSuccess(true, $queryParams, HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true, $queryParams);
     }
 
-    public function deleteInternComment($id)
+    /**
+     * @return string The returned string contains JSON
+     */
+    public function delete($id) : string
     {
         if (!is_numeric($id)) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_BAD_REQUEST);
+            return JsonResponse::requestResponse(HttpResponse::HTTP_BAD_REQUEST, false);
         }
 
-        $queryResponse = $this->query->deleteInternComment($id);
+        $queryData = $this->query->deleteInternComment($id);
 
-        if ($queryResponse == false) {
-            return JsonResponse::requestFail(HttpResponse::HTTP_NOT_FOUND);
+        if (empty($queryData)) {
+            return JsonResponse::requestResponse(HttpResponse::HTTP_NOT_FOUND, false);
         }
 
-        return JsonResponse::requestSuccess(true, '{}', HttpResponse::HTTP_OK);
+        return JsonResponse::requestResponse(HttpResponse::HTTP_OK, true);
     }
 }
